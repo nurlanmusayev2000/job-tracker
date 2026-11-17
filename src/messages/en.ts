@@ -46,6 +46,20 @@ export const en = {
     // Saved as the next step when a vacancy moves to Applied.
     followUpStep: "Follow up if there is no reply",
     untitled: "Untitled vacancy",
+    titleAtCompany: (title: string, company: string) =>
+      `${title} at ${company}`,
+  },
+  quickAdd: {
+    heading: "Save jobs from any website",
+    text: "Drag this button to your browser's bookmarks bar. When you look at a job posting on any website, click the bookmark: this app opens with the posting's link and title filled in.",
+    link: "Save to Job Tracker",
+    dragHint:
+      "Drag this button to your bookmarks bar; clicking it here does nothing.",
+    copy: "Copy the bookmark code",
+    copied:
+      "Copied. Create a new bookmark and paste the code as its address (URL).",
+    copyFailed: "The code could not be copied. Drag the button instead.",
+    note: "Some websites block bookmarks like this. There, copy the job's link and add it here yourself.",
   },
   pipeline: {
     label: "Vacancies by stage. Choose a stage to show only its vacancies.",
@@ -135,6 +149,8 @@ export const en = {
     confirmDeleteYes: "Yes, delete",
     confirmDeleteNo: "Keep it",
     requiredHint: "A job title or a company is required.",
+    duplicate: (existing: string, stage: string) =>
+      `You already saved ${existing} (${stage}). You can still save this one.`,
     fields: {
       title: "Job title",
       company: "Company",
