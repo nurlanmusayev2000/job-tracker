@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   addDays,
   daysBetween,
+  formatDate,
   isValidLocalDate,
   startOfWeek,
   toLocalDate,
@@ -112,5 +113,18 @@ describe("startOfWeek", () => {
   it("can go back into the previous month or year", () => {
     expect(startOfWeek("2026-11-01")).toBe("2026-10-26"); // Sunday
     expect(startOfWeek("2027-01-01")).toBe("2026-12-28"); // Friday
+  });
+});
+
+describe("formatDate", () => {
+  it("writes the date for people in the given language", () => {
+    expect(formatDate("2026-11-24", "en-GB")).toBe("24 Nov 2026");
+    expect(formatDate("2026-11-24", "en-US")).toBe("Nov 24, 2026");
+  });
+
+  it("shows the same day in every time zone", () => {
+    // A late-evening time zone like New York would show 31 December if the
+    // date were formatted in local time from midnight UTC.
+    expect(formatDate("2027-01-01", "en-GB")).toBe("1 Jan 2027");
   });
 });

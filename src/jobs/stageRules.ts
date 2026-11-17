@@ -1,7 +1,16 @@
 import { addDays, type LocalDate } from "@/lib/dates";
 import { messages } from "@/messages";
 
-import { hasNextStep, type Job, type JobChanges, type Stage } from "./job";
+import {
+  hasNextStep,
+  type Job,
+  type JobChanges,
+  type JobInput,
+  type Stage,
+} from "./job";
+
+/** The fields the stage rules read. */
+type StageFields = Pick<Job, "status" | "appliedOn" | "nextStep" | "nextOn">;
 
 /** How many days after applying the app suggests following up. */
 export const FOLLOW_UP_AFTER_DAYS = 7;
@@ -17,7 +26,7 @@ export const FOLLOW_UP_AFTER_DAYS = 7;
  * the same. The caller saves them with the repository.
  */
 export function changesForStage(
-  job: Job,
+  job: StageFields,
   stage: Stage,
   today: LocalDate,
 ): JobChanges {
@@ -42,4 +51,24 @@ export function changesForStage(
   }
 
   return changes;
+}
+
+/**
+ * Applies the stage rules to a job filled in with the dialog.
+ *
+ * `previousStage` is the stage the job had before (for a new job: "saved").
+ * The rules look at the values from the dialog, so anything the user typed
+ * in (for example an application date) is kept.
+ */
+export function withStageRules(
+  values: JobInput,
+  previousStage: Stage,
+  today: LocalDate,
+): JobInput {
+  const changes = changesForStage(
+    { ...values, status: previousStage },
+    values.status,
+    today,
+  );
+  return { ...values, ...changes };
 }

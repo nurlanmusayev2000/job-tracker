@@ -8,3 +8,16 @@ import { afterEach } from "vitest";
 afterEach(() => {
   cleanup();
 });
+
+// jsdom, the browser the tests run in, does not support <dialog> yet. These
+// two methods do the part the app relies on: open and close it. Real
+// browsers have their own versions, so this file is only used in tests.
+if (typeof HTMLDialogElement.prototype.showModal !== "function") {
+  HTMLDialogElement.prototype.showModal = function showModal() {
+    this.setAttribute("open", "");
+  };
+  HTMLDialogElement.prototype.close = function close() {
+    this.removeAttribute("open");
+    this.dispatchEvent(new Event("close"));
+  };
+}

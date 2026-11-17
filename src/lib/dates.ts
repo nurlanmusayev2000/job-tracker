@@ -77,3 +77,16 @@ export function startOfWeek(date: LocalDate): LocalDate {
   const daysSinceMonday = (dayOfWeek + 6) % 7;
   return addDays(date, -daysSinceMonday);
 }
+
+/**
+ * A date written for people, for example "24 Nov 2026" for the locale
+ * "en-GB". The date is formatted in UTC to match how it is stored above.
+ */
+export function formatDate(date: LocalDate, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(toUtcMs(date));
+}
