@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { messages } from "@/messages";
-import { makeJob } from "@/test/factories";
+import { makeJob, makeJobInput } from "@/test/factories";
 
-import { changesForStage, FOLLOW_UP_AFTER_DAYS } from "./stageRules";
+import {
+  changesForStage,
+  FOLLOW_UP_AFTER_DAYS,
+  withStageRules,
+} from "./stageRules";
 
 const TODAY = "2026-11-17";
 
@@ -103,6 +107,48 @@ describe("changesForStage", () => {
       });
       expect(changesForStage(job, "offer", TODAY)).toEqual({ status: "offer" });
       expect(changesForStage(job, "saved", TODAY)).toEqual({ status: "saved" });
+    });
+  });
+});
+
+describe("withStageRules", () => {
+  it("applies the rules to a new vacancy added straight to Applied", () => {
+    const values = makeJobInput({ status: "applied" });
+
+    expect(withStageRules(values, "saved", TODAY)).toEqual({
+      ...values,
+      appliedOn: "2026-11-17",
+      nextStep: messages.jobs.followUpStep,
+      nextOn: "2026-11-24",
+    });
+  });
+
+  it("keeps what the user typed into the dialog", () => {
+    const values = makeJobInput({
+      status: "applied",
+      appliedOn: "2026-11-12",
+      nextStep: "Message the recruiter",
+    });
+
+    expect(withStageRules(values, "saved", TODAY)).toEqual(values);
+  });
+
+  it("changes nothing when the stage did not change", () => {
+    const values = makeJobInput({ status: "applied" });
+    expect(withStageRules(values, "applied", TODAY)).toEqual(values);
+  });
+
+  it("clears the next step when the dialog closes the vacancy", () => {
+    const values = makeJobInput({
+      status: "closed",
+      nextStep: "Call back",
+      nextOn: "2026-11-20",
+    });
+
+    expect(withStageRules(values, "interview", TODAY)).toMatchObject({
+      status: "closed",
+      nextStep: "",
+      nextOn: "",
     });
   });
 });
