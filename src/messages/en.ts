@@ -49,8 +49,6 @@ export const en = {
   },
   pipeline: {
     label: "Vacancies by stage. Choose a stage to show only its vacancies.",
-    count: (count: number, stage: string) =>
-      `${stage}: ${count} ${count === 1 ? "vacancy" : "vacancies"}`,
   },
   summary: (open: number, appliedThisWeek: number) =>
     `${open} open ${open === 1 ? "vacancy" : "vacancies"} · ` +

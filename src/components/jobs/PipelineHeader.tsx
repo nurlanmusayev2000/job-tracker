@@ -42,25 +42,20 @@ export function PipelineHeader({
               <button
                 type="button"
                 aria-pressed={isActive}
-                aria-label={messages.pipeline.count(
-                  counts[stage],
-                  messages.stages[stage],
-                )}
                 onClick={() => onSelect(isActive ? null : stage)}
-                className={`flex w-full flex-col items-center gap-1 rounded-lg px-0.5 pt-2 pb-1 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-sky-600 dark:hover:bg-slate-800/60 dark:focus-visible:outline-sky-400 ${isDimmed ? "opacity-50" : ""}`}
+                className="flex w-full flex-col items-center gap-1 rounded-lg px-0.5 pt-2 pb-1 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-sky-600 dark:hover:bg-slate-800/60 dark:focus-visible:outline-sky-400"
               >
                 <span
                   aria-hidden="true"
-                  className={`size-3.5 rounded-full ring-4 ring-slate-50 dark:ring-slate-950 ${stageDotColors[stage]} ${isActive ? "scale-125 motion-safe:transition-transform" : ""}`}
+                  className={`size-3.5 rounded-full ring-4 ring-slate-50 dark:ring-slate-950 ${stageDotColors[stage]} ${isActive ? "scale-125 motion-safe:transition-transform" : ""} ${isDimmed ? "opacity-40" : ""}`}
                 />
+                {/* The count and the stage name are what screen readers say, for example "2 Applied". */}
                 <span
-                  aria-hidden="true"
-                  className="text-2xl font-semibold tabular-nums sm:text-3xl"
+                  className={`text-2xl font-semibold tabular-nums sm:text-3xl ${isDimmed ? "text-slate-500 dark:text-slate-400" : ""}`}
                 >
                   {counts[stage]}
-                </span>
+                </span>{" "}
                 <span
-                  aria-hidden="true"
                   className={`text-[11px] leading-tight sm:text-sm ${isActive ? "font-semibold underline underline-offset-4" : "text-slate-600 dark:text-slate-400"}`}
                 >
                   {messages.stages[stage]}
