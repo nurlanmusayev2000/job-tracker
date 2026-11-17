@@ -47,6 +47,11 @@ enough to explain, and the [decisions](#decisions-and-trade-offs) section says w
 - **Search, sort and filter:** search the title, company, location, source and notes. Sort by newest, soonest
   date or company A–Z. Search, sort, stage and the open vacancy are kept in the URL, so a reload or a shared
   link shows the same view.
+- **Save from any website:** a bookmarklet. Drag it to the bookmarks bar, click it on any job posting, and the
+  app opens with the posting's link and title in the "Add" dialog. It needs no API, so it also works on sites
+  without one.
+- **Duplicate warning:** while adding or editing, the dialog says if the same link, or the same title and
+  company, is already saved.
 - **Export and import:** download everything as a JSON file, and import it again. A bad file is refused with a
   message that says what is wrong.
 - **Theme:** light, dark, or follow the system.
@@ -148,6 +153,12 @@ never overwritten, so a bug can't silently delete someone's vacancies.
 **Built on what the browser already does.** The dialog is the native `<dialog>` element, which already
 handles focus, Escape and returning focus. The theme switch and stage filter use native radio buttons and
 toggle buttons. This needed less code and fewer packages, with better accessibility.
+
+**A bookmarklet instead of reading job pages.** A static site can't fetch another website's page (the browser
+blocks it, and there is no server to do it), so the app can't read a posting from its link. A bookmarklet runs
+on the job page itself and only passes its link and title, which works everywhere without a server. React 19
+refuses `javascript:` links in JSX, so `QuickAddPanel` sets the bookmark's address on the element directly; the
+code is the app's own and never contains user data.
 
 **Import replaces, it doesn't merge.** Merging needs rules for conflicts (the same vacancy changed in two
 places). The main uses are a backup and moving to another browser, so import replaces everything after a
