@@ -1,5 +1,24 @@
 import type { Stage, WorkMode } from "@/jobs/job";
 
+/** "1 day" or "3 days". */
+function dayCount(days: number): string {
+  return `${days} ${days === 1 ? "day" : "days"}`;
+}
+
+/** A date relative to today: "today", "tomorrow", "in 3 days", "yesterday", "3 days ago". */
+function relativeDay(days: number): string {
+  if (days === 0) return "today";
+  if (days === 1) return "tomorrow";
+  if (days === -1) return "yesterday";
+  return days > 0 ? `in ${dayCount(days)}` : `${dayCount(-days)} ago`;
+}
+
+/** When a next step is due: "due today", "due in 2 days", "overdue by 1 day". */
+function dueText(days: number): string {
+  if (days < 0) return `overdue by ${dayCount(-days)}`;
+  return days === 0 ? "due today" : `due ${relativeDay(days)}`;
+}
+
 // All text the user can see lives in this file. To add another language,
 // copy this object into a new file and translate the values.
 export const en = {
@@ -28,6 +47,34 @@ export const en = {
     followUpStep: "Follow up if there is no reply",
     untitled: "Untitled vacancy",
   },
+  pipeline: {
+    label: "Vacancies by stage. Choose a stage to show only its vacancies.",
+    count: (count: number, stage: string) =>
+      `${stage}: ${count} ${count === 1 ? "vacancy" : "vacancies"}`,
+  },
+  summary: (open: number, appliedThisWeek: number) =>
+    `${open} open ${open === 1 ? "vacancy" : "vacancies"} · ` +
+    `${appliedThisWeek} ${appliedThisWeek === 1 ? "application" : "applications"} sent this week`,
+  nextUp: {
+    heading: "Next up",
+    empty: "Nothing is due in the next 3 days.",
+    stepDue: (step: string, days: number) =>
+      `${step || "Next step"}: ${dueText(days)}`,
+    deadlineSoon: (days: number) =>
+      days === 0
+        ? "Last day to apply is today"
+        : `Last day to apply ${relativeDay(days)}`,
+    deadlinePassed: (days: number) =>
+      `The deadline passed ${relativeDay(days)}`,
+    noReply: (days: number) => `No reply for ${dayCount(-days)}`,
+    actions: {
+      markApplied: "Mark applied",
+      done: "Done",
+      remindInAWeek: "Remind me in a week",
+      close: "Close it",
+    },
+    actionLabel: (action: string, name: string) => `${action}: ${name}`,
+  },
   list: {
     heading: "Your vacancies",
     add: "Add vacancy",
@@ -41,6 +88,19 @@ export const en = {
     appliedOn: (date: string) => `Applied ${date}`,
     nextOn: (date: string) => `on ${date}`,
     openLink: (name: string) => `Open the job posting for ${name}`,
+    search: "Search",
+    searchPlaceholder: "Title, company, location, source or notes",
+    sort: "Sort by",
+    sortOrders: {
+      newest: "Newest first",
+      soonest: "Soonest date",
+      company: "Company A–Z",
+    },
+    stageFilter: "Stage",
+    allStages: "All stages",
+    showing: (shown: number, total: number) => `Showing ${shown} of ${total}`,
+    clearFilters: "Clear search and filters",
+    noMatches: "No vacancies match your search or filter.",
   },
   dialog: {
     addTitle: "Add a vacancy",

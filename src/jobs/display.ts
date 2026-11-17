@@ -2,6 +2,7 @@ import { formatDate } from "@/lib/dates";
 import { messages } from "@/messages";
 
 import type { Job } from "./job";
+import type { NextUpItem } from "./nextUp";
 
 /** The name to show for a job: its title, else its company. */
 export function jobName(job: Pick<Job, "title" | "company">): string {
@@ -47,4 +48,19 @@ export function dateFacts(
     );
   }
   return facts;
+}
+
+/** Why a job is in "Next up", for example "Follow up: overdue by 2 days". */
+export function nextUpText(item: NextUpItem): string {
+  const text = messages.nextUp;
+  switch (item.reason) {
+    case "stepDue":
+      return text.stepDue(item.job.nextStep, item.days);
+    case "deadlineSoon":
+      return text.deadlineSoon(item.days);
+    case "deadlinePassed":
+      return text.deadlinePassed(item.days);
+    case "noReply":
+      return text.noReply(item.days);
+  }
 }
