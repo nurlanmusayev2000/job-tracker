@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Let the browser style scrollbars and form controls for both themes. */
+:root {
+  color-scheme: light dark;
+}
