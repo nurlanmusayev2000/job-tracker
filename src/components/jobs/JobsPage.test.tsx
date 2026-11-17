@@ -12,7 +12,7 @@ const text = messages.dialog;
 
 /** Waits for the list to load, then returns the list of vacancies. */
 async function findList() {
-  return screen.findByRole("list");
+  return screen.findByRole("list", { name: messages.list.heading });
 }
 
 describe("JobsPage", () => {
