@@ -10,6 +10,9 @@ export default defineConfig({
   test: {
     // jsdom gives the tests a browser-like document to render into.
     environment: "jsdom",
+    // Run in New York time. It is behind UTC and has daylight saving time,
+    // so date bugs that a UTC machine would hide show up in the tests.
+    env: { TZ: "America/New_York" },
     setupFiles: ["./vitest.setup.ts"],
     // Unit and component tests live next to the code. The Playwright test in
     // e2e/ is run separately with `npm run test:e2e`.
