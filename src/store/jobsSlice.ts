@@ -121,6 +121,15 @@ export const applyQuickAction = createAppAsyncThunk(
   },
 );
 
+/** Replaces every saved job with the jobs from an imported file. */
+export const importJobs = createAppAsyncThunk(
+  "jobs/import",
+  async (jobs: Job[], { extra }) => {
+    await extra.repository.replaceAll(jobs);
+    return jobs;
+  },
+);
+
 /** Deletes a job and returns its id. */
 export const deleteJob = createAppAsyncThunk(
   "jobs/delete",
@@ -205,12 +214,16 @@ const jobsSlice = createSlice({
       .addCase(applyQuickAction.rejected, (state, action) => {
         state.saveError = messageFor(action.error, messages.errors.saveFailed);
       })
+      .addCase(importJobs.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.saveError = null;
+      })
       .addCase(deleteJob.fulfilled, (state, action) => {
         state.items = state.items.filter((job) => job.id !== action.payload);
         state.saveError = null;
       });
-    // The dialog shows its own error when adding, saving or deleting fails,
-    // so those rejections are not stored here.
+    // The dialogs show their own error when adding, saving, deleting or
+    // importing fails, so those rejections are not stored here.
   },
 });
 

@@ -46,9 +46,9 @@ async function namesInList() {
   return rows.map((row) => within(row).getByRole("heading").textContent);
 }
 
-/** The button for a pipeline stop, found by its stage and count. */
+/** The button for a pipeline stop. Its name is what it shows: the count, then the stage. */
 const stop = (stage: string, count: number) =>
-  screen.getByRole("button", { name: messages.pipeline.count(count, stage) });
+  screen.getByRole("button", { name: `${count} ${stage}` });
 
 describe("JobsPage overview", () => {
   it("shows the summary line", async () => {
@@ -91,8 +91,10 @@ describe("JobsPage overview", () => {
     await user.type(screen.getByLabelText(messages.list.search), "berlin");
 
     expect(await namesInList()).toEqual(["Frontend Developer"]);
-    expect(screen.getByRole("status")).toHaveTextContent(
-      messages.list.showing(1, 3),
+    // The count is a live region, so screen readers announce it.
+    expect(screen.getByText(messages.list.showing(1, 3))).toHaveAttribute(
+      "role",
+      "status",
     );
     expect(window.location.search).toBe("?q=berlin");
 

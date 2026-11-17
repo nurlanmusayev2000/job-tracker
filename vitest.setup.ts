@@ -27,3 +27,18 @@ if (typeof HTMLDialogElement.prototype.showModal !== "function") {
 afterEach(() => {
   window.history.replaceState(null, "", "/");
 });
+
+// jsdom has no matchMedia. The tests use a device in light mode.
+if (typeof window.matchMedia !== "function") {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    }) satisfies MediaQueryList;
+}
