@@ -6,6 +6,12 @@ import {
 } from "@reduxjs/toolkit";
 
 import type { Job, JobInput, Stage } from "@/jobs/job";
+import {
+  changesForQuickAction,
+  nextUpItems,
+  type QuickAction,
+} from "@/jobs/nextUp";
+import { countByStage, summarize } from "@/jobs/overview";
 import { normalizeJobInput } from "@/jobs/jobForm";
 import { JobNotFoundError, type JobRepository } from "@/jobs/repository";
 import { changesForStage, withStageRules } from "@/jobs/stageRules";
@@ -28,6 +34,11 @@ export type LoadStatus = "idle" | "loading" | "ready" | "failed";
 
 export interface JobsState {
   items: Job[];
+  /**
+   * Today's date, read when the jobs load. Keeping it in the state lets the
+   * selectors below stay pure functions of the state.
+   */
+  today: LocalDate;
   status: LoadStatus;
   /** Why loading failed, shown instead of the list. */
   loadError: string | null;
@@ -37,6 +48,7 @@ export interface JobsState {
 
 const initialState: JobsState = {
   items: [],
+  today: "",
   status: "idle",
   loadError: null,
   saveError: null,
@@ -47,10 +59,13 @@ const createAppAsyncThunk = createAsyncThunk.withTypes<{
   extra: ThunkExtra;
 }>();
 
-/** Reads all jobs from storage. Called once, after the page has mounted. */
+/** Reads all jobs from storage, and today's date. Called once, after the page has mounted. */
 export const loadJobs = createAppAsyncThunk(
   "jobs/load",
-  async (_: void, { extra }) => extra.repository.list(),
+  async (_: void, { extra }) => ({
+    jobs: await extra.repository.list(),
+    today: extra.today(),
+  }),
 );
 
 /** Saves a new job from the dialog. The stage rules apply to its stage. */
@@ -89,6 +104,19 @@ export const changeStage = createAppAsyncThunk(
   async ({ id, stage }: { id: string; stage: Stage }, { getState, extra }) => {
     const job = findJob(getState().jobs.items, id);
     const changes = changesForStage(job, stage, extra.today());
+    return extra.repository.update(id, changes);
+  },
+);
+
+/** Runs a quick action from "Next up", for example "Remind me in a week". */
+export const applyQuickAction = createAppAsyncThunk(
+  "jobs/quickAction",
+  async (
+    { id, action }: { id: string; action: QuickAction },
+    { getState, extra },
+  ) => {
+    const job = findJob(getState().jobs.items, id);
+    const changes = changesForQuickAction(job, action, extra.today());
     return extra.repository.update(id, changes);
   },
 );
@@ -151,7 +179,8 @@ const jobsSlice = createSlice({
       })
       .addCase(loadJobs.fulfilled, (state, action) => {
         state.status = "ready";
-        state.items = action.payload;
+        state.items = action.payload.jobs;
+        state.today = action.payload.today;
       })
       .addCase(loadJobs.rejected, (state, action) => {
         state.status = "failed";
@@ -168,6 +197,12 @@ const jobsSlice = createSlice({
         replaceJob(state, action.payload);
       })
       .addCase(changeStage.rejected, (state, action) => {
+        state.saveError = messageFor(action.error, messages.errors.saveFailed);
+      })
+      .addCase(applyQuickAction.fulfilled, (state, action) => {
+        replaceJob(state, action.payload);
+      })
+      .addCase(applyQuickAction.rejected, (state, action) => {
         state.saveError = messageFor(action.error, messages.errors.saveFailed);
       })
       .addCase(deleteJob.fulfilled, (state, action) => {
@@ -191,8 +226,25 @@ export const selectSaveError = (state: StateWithJobs) => state.jobs.saveError;
 export const selectJobById = (state: StateWithJobs, id: string) =>
   state.jobs.items.find((job) => job.id === id);
 
-/** All jobs, the most recently added first. */
-export const selectJobsNewestFirst = createSelector(
-  [(state: StateWithJobs) => state.jobs.items],
-  (items) => [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+export const selectJobs = (state: StateWithJobs) => state.jobs.items;
+export const selectToday = (state: StateWithJobs) => state.jobs.today;
+
+// createSelector remembers its last result, so these are only recalculated
+// when the jobs or the date change, not on every render.
+
+/** How many jobs are in each stage, for the pipeline header. */
+export const selectStageCounts = createSelector([selectJobs], countByStage);
+
+/** Open vacancies and applications sent this week, for the summary line. */
+export const selectSummary = createSelector(
+  [selectJobs, selectToday],
+  // Until the jobs have loaded there is no date yet, and nothing to count.
+  (jobs, today) =>
+    today === "" ? { open: 0, appliedThisWeek: 0 } : summarize(jobs, today),
+);
+
+/** The jobs that need attention soon, most urgent first. */
+export const selectNextUp = createSelector(
+  [selectJobs, selectToday],
+  (jobs, today) => (today === "" ? [] : nextUpItems(jobs, today)),
 );

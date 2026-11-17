@@ -3,7 +3,14 @@ import { describe, expect, it } from "vitest";
 import { messages } from "@/messages";
 import { makeJob } from "@/test/factories";
 
-import { dateFacts, jobDetails, jobName, nextStepText } from "./display";
+import {
+  dateFacts,
+  jobDetails,
+  jobName,
+  nextStepText,
+  nextUpText,
+} from "./display";
+import type { NextUpItem } from "./nextUp";
 
 describe("jobName", () => {
   it("uses the title, then the company", () => {
@@ -71,5 +78,55 @@ describe("dateFacts", () => {
     expect(
       dateFacts(makeJob({ status: "interview", appliedOn: "2026-11-10" })),
     ).toEqual(["Applied 10 Nov 2026"]);
+  });
+});
+
+describe("nextUpText", () => {
+  const item = (
+    reason: NextUpItem["reason"],
+    days: number,
+    nextStep = "",
+  ): NextUpItem => ({
+    job: makeJob({ nextStep }),
+    reason,
+    date: "2026-11-17",
+    days,
+  });
+
+  it("describes a due or overdue next step", () => {
+    expect(nextUpText(item("stepDue", 0, "Call back"))).toBe(
+      "Call back: due today",
+    );
+    expect(nextUpText(item("stepDue", 1, "Call back"))).toBe(
+      "Call back: due tomorrow",
+    );
+    expect(nextUpText(item("stepDue", 3, "Call back"))).toBe(
+      "Call back: due in 3 days",
+    );
+    expect(nextUpText(item("stepDue", -1, "Call back"))).toBe(
+      "Call back: overdue by 1 day",
+    );
+    expect(nextUpText(item("stepDue", -4))).toBe(
+      "Next step: overdue by 4 days",
+    );
+  });
+
+  it("describes a deadline", () => {
+    expect(nextUpText(item("deadlineSoon", 0))).toBe(
+      "Last day to apply is today",
+    );
+    expect(nextUpText(item("deadlineSoon", 2))).toBe(
+      "Last day to apply in 2 days",
+    );
+    expect(nextUpText(item("deadlinePassed", -1))).toBe(
+      "The deadline passed yesterday",
+    );
+    expect(nextUpText(item("deadlinePassed", -5))).toBe(
+      "The deadline passed 5 days ago",
+    );
+  });
+
+  it("describes an application with no reply", () => {
+    expect(nextUpText(item("noReply", -9))).toBe("No reply for 9 days");
   });
 });

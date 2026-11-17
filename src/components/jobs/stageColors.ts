@@ -13,3 +13,12 @@ export const stageColors: Record<Stage, string> = {
   closed:
     "border-slate-300 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400",
 };
+
+/** The color of each stage's stop on the pipeline line. */
+export const stageDotColors: Record<Stage, string> = {
+  saved: "bg-slate-500 dark:bg-slate-400",
+  applied: "bg-sky-600 dark:bg-sky-400",
+  interview: "bg-violet-600 dark:bg-violet-400",
+  offer: "bg-emerald-600 dark:bg-emerald-400",
+  closed: "bg-slate-300 dark:bg-slate-600",
+};

@@ -21,3 +21,9 @@ if (typeof HTMLDialogElement.prototype.showModal !== "function") {
     this.dispatchEvent(new Event("close"));
   };
 }
+
+// Search, sort, filter and the open vacancy live in the URL. Start every
+// test from a URL without a query string.
+afterEach(() => {
+  window.history.replaceState(null, "", "/");
+});
