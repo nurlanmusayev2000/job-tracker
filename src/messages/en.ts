@@ -100,6 +100,30 @@ export const en = {
     clearFilters: "Clear search and filters",
     noMatches: "No vacancies match your search or filter.",
   },
+  theme: {
+    label: "Theme",
+    system: "System",
+    light: "Light",
+    dark: "Dark",
+  },
+  skipToList: "Skip to your vacancies",
+  data: {
+    heading: "Your data",
+    text: "Everything is saved in this browser only. Export a file to keep a backup or to move your vacancies to another browser.",
+    export: "Export JSON",
+    import: "Import JSON",
+    confirmTitle: "Replace your vacancies?",
+    confirmText: (fileCount: number, savedCount: number) =>
+      `The file has ${fileCount} ${fileCount === 1 ? "vacancy" : "vacancies"}. ` +
+      `Importing it replaces the ${savedCount} ${savedCount === 1 ? "vacancy" : "vacancies"} saved in this browser. ` +
+      "Export first if you want to keep them.",
+    confirmImport: "Replace and import",
+    cancel: "Cancel",
+    imported: (count: number) =>
+      `Imported ${count} ${count === 1 ? "vacancy" : "vacancies"}.`,
+    importFailed: (reason: string) =>
+      `The file could not be imported. ${reason}`,
+  },
   dialog: {
     addTitle: "Add a vacancy",
     editTitle: "Edit vacancy",
@@ -145,6 +169,7 @@ export const en = {
       "This data was saved by a newer version of the app. Reload the page to get the latest version.",
     badJob: (position: number, field: string, problem: string) =>
       `Vacancy ${position}, field "${field}": ${problem}`,
+    duplicateIds: "Two vacancies in the file have the same id.",
     loadFailed: "Your vacancies could not be loaded.",
     saveFailed:
       "The change could not be saved. Your browser storage may be full or turned off.",

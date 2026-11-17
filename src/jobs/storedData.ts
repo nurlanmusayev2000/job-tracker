@@ -13,7 +13,13 @@ export const CURRENT_VERSION = 1;
 /** Everything the app saves: the format version and the list of jobs. */
 export const storedDataSchema = z.object({
   version: z.literal(CURRENT_VERSION),
-  jobs: z.array(jobSchema),
+  jobs: z
+    .array(jobSchema)
+    // Two jobs with the same id would be impossible to tell apart, for
+    // example in an imported file that was edited by hand.
+    .refine((jobs) => new Set(jobs.map((job) => job.id)).size === jobs.length, {
+      message: messages.errors.duplicateIds,
+    }),
 });
 export type StoredData = z.infer<typeof storedDataSchema>;
 
