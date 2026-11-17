@@ -5,10 +5,10 @@ import { hasNextStep, type Job, type JobChanges } from "./job";
 import { changesForStage, FOLLOW_UP_AFTER_DAYS } from "./stageRules";
 
 /** A date within this many days from today counts as "soon". */
-export const SOON_DAYS = 3;
+const SOON_DAYS = 3;
 
 /** A reply is "late" this many days after applying. */
-export const NO_REPLY_DAYS = 7;
+const NO_REPLY_DAYS = 7;
 
 /**
  * Why a job is in "Next up". Each reason comes with one quick action:

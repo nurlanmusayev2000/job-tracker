@@ -1,8 +1,14 @@
 {
   "name": "job-tracker",
   "version": "0.1.0",
+  "description": "Track your job applications in one place. A static Next.js app; your data stays in your browser.",
   "private": true,
   "license": "MIT",
+  "homepage": "https://nurlanmusayev2000.github.io/job-tracker/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nurlanmusayev2000/job-tracker.git"
+  },
   "engines": {
     "node": ">=22"
   },

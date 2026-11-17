@@ -16,7 +16,7 @@ import { makeStore } from "@/store/store";
 import { createFakeStorage } from "./factories";
 
 /** The date the tests treat as today: Tuesday 17 November 2026. */
-export const TEST_TODAY: LocalDate = "2026-11-17";
+const TEST_TODAY: LocalDate = "2026-11-17";
 
 interface Options {
   /** Jobs that are already saved when the app starts. */

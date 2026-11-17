@@ -23,7 +23,7 @@ export function isDarkTheme(
 }
 
 /** True if the device is set to dark mode. */
-export function systemIsDark(): boolean {
+function systemIsDark(): boolean {
   return window.matchMedia(DARK_QUERY).matches;
 }
 
