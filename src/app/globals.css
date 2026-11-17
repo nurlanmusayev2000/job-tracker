@@ -1,6 +1,28 @@
 @import "tailwindcss";
 
-/* Let the browser style scrollbars and form controls for both themes. */
+/*
+  Dark mode follows a "dark" class on <html> instead of only the system
+  setting, so the theme switch can override it. The script in layout.tsx
+  sets the class before the page is drawn.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Let the browser draw scrollbars and form controls in the same theme. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+:root.dark {
+  color-scheme: dark;
+}
+
+/* People who ask their system for less motion get no animations or transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

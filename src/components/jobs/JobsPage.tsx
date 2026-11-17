@@ -20,6 +20,8 @@ import {
 
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
+import { ThemeSwitch } from "../ui/ThemeSwitch";
+import { DataPanel } from "./DataPanel";
 import { JobDialog } from "./JobDialog";
 import { EmptyJobList, JobListSkeleton } from "./JobListStates";
 import { JobRow } from "./JobRow";
@@ -62,7 +64,18 @@ export function JobsPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8 sm:py-12">
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 pt-4 pb-10 sm:pb-16">
+      {/* The first thing keyboard users reach: it jumps past the overview. */}
+      <a
+        href="#vacancies"
+        className="sr-only rounded-lg bg-slate-900 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 dark:bg-slate-100 dark:text-slate-900"
+      >
+        {messages.skipToList}
+      </a>
+      <div className="flex justify-end">
+        <ThemeSwitch />
+      </div>
+
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">
@@ -103,7 +116,12 @@ export function JobsPage() {
         </>
       )}
 
-      <section aria-labelledby="list-heading" className="flex flex-col gap-4">
+      <section
+        id="vacancies"
+        tabIndex={-1}
+        aria-labelledby="list-heading"
+        className="flex scroll-mt-4 flex-col gap-4 focus:outline-none"
+      >
         <h2 id="list-heading" className="text-lg font-semibold">
           {messages.list.heading}
         </h2>
@@ -136,6 +154,8 @@ export function JobsPage() {
           </>
         )}
       </section>
+
+      {isReady && <DataPanel />}
 
       <JobDialog
         open={isAdding || openJob !== undefined}
