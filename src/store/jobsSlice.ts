@@ -30,9 +30,9 @@ export interface ThunkExtra {
 }
 
 /** Whether the jobs have been read from storage yet. */
-export type LoadStatus = "idle" | "loading" | "ready" | "failed";
+type LoadStatus = "idle" | "loading" | "ready" | "failed";
 
-export interface JobsState {
+interface JobsState {
   items: Job[];
   /**
    * Today's date, read when the jobs load. Keeping it in the state lets the

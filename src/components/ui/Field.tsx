@@ -5,7 +5,7 @@ import type {
   TextareaHTMLAttributes,
 } from "react";
 
-export const controlClass =
+const controlClass =
   "block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 " +
   "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-600 " +
   "aria-[invalid=true]:border-red-600 " +
@@ -37,7 +37,7 @@ export function Field({ id, label, error, children }: FieldProps) {
 }
 
 /** The id of a field's error message, for aria-describedby. */
-export function errorId(id: string): string {
+function errorId(id: string): string {
   return `${id}-error`;
 }
 
