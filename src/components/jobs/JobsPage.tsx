@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { applyListQuery } from "@/jobs/listQuery";
+import { parseAddRequest } from "@/jobs/quickAdd";
+import { useSearchString } from "@/lib/useSearchString";
 import { messages } from "@/messages";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -28,6 +30,7 @@ import { JobRow } from "./JobRow";
 import { ListToolbar } from "./ListToolbar";
 import { NextUpList } from "./NextUpList";
 import { PipelineHeader } from "./PipelineHeader";
+import { QuickAddPanel } from "./QuickAddPanel";
 import { useListQuery } from "./useListQuery";
 
 /** The main page: the header, the pipeline, "Next up", the list and the dialog. */
@@ -40,6 +43,7 @@ export function JobsPage() {
   const counts = useAppSelector(selectStageCounts);
   const summary = useAppSelector(selectSummary);
   const nextUp = useAppSelector(selectNextUp);
+  const isReady = status === "ready";
 
   // Search, sort, stage filter and the open vacancy live in the URL.
   const [query, updateQuery] = useListQuery();
@@ -49,6 +53,14 @@ export function JobsPage() {
   );
   // "Add vacancy" has no id yet, so it is the one dialog state not in the URL.
   const [isAdding, setIsAdding] = useState(false);
+  // The bookmarklet opens the app with ?add=<link>&title=<page title>.
+  const searchString = useSearchString();
+  const addRequest = useMemo(
+    () => parseAddRequest(searchString),
+    [searchString],
+  );
+  // The add dialog waits for the saved vacancies, so the duplicate warning works.
+  const isAddDialogOpen = isReady && (isAdding || addRequest !== null);
 
   // Read the saved vacancies once, after the page is on screen. Reading
   // them during the first render would make it differ from the server HTML.
@@ -56,10 +68,11 @@ export function JobsPage() {
     void dispatch(loadJobs());
   }, [dispatch]);
 
-  const isReady = status === "ready";
   const openVacancy = (id: string) => updateQuery({ openId: id });
   const closeDialog = () => {
     setIsAdding(false);
+    // Writing the query again also drops ?add= and &title=, which the list
+    // query does not know, so a reload does not open the dialog again.
     updateQuery({ openId: null });
   };
 
@@ -155,11 +168,17 @@ export function JobsPage() {
         )}
       </section>
 
-      {isReady && <DataPanel />}
+      {isReady && (
+        <>
+          <QuickAddPanel />
+          <DataPanel />
+        </>
+      )}
 
       <JobDialog
-        open={isAdding || openJob !== undefined}
-        job={isAdding ? undefined : openJob}
+        open={isAddDialogOpen || openJob !== undefined}
+        job={isAddDialogOpen ? undefined : openJob}
+        newJobValues={addRequest ?? undefined}
         onClose={closeDialog}
       />
     </main>

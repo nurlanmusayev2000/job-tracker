@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 
-import { STAGES, WORK_MODES, type JobInput } from "@/jobs/job";
+import { STAGES, WORK_MODES, type Job, type JobInput } from "@/jobs/job";
 import { validateJobInput, type JobFormErrors } from "@/jobs/jobForm";
+import { describeJob, findDuplicate } from "@/jobs/quickAdd";
 import { messages } from "@/messages";
 
 import { Alert } from "../ui/Alert";
@@ -21,6 +22,10 @@ interface JobFormProps {
   onDelete?: () => Promise<void>;
   /** Turns an error from saving or deleting into a message. */
   describeError: (error: unknown) => string;
+  /** The saved jobs, to warn when this one looks like one of them. */
+  savedJobs: Job[];
+  /** The id of the job being edited, so it is not its own duplicate. */
+  editedId?: string;
 }
 
 /** The id of the input for a field, for example "job-title". */
@@ -33,12 +38,18 @@ export function JobForm({
   onCancel,
   onDelete,
   describeError,
+  savedJobs,
+  editedId,
 }: JobFormProps) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<JobFormErrors>({});
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const duplicate = useMemo(
+    () => findDuplicate(values, savedJobs, editedId),
+    [values, savedJobs, editedId],
+  );
 
   /** Returns a change handler that stores the new value of one field. */
   function handleChange(field: keyof JobInput) {
@@ -89,6 +100,15 @@ export function JobForm({
     <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-5">
       <p className="text-sm text-slate-600 dark:text-slate-400">
         {text.requiredHint}
+      </p>
+      {/* Only a warning: two postings can share a title and company. */}
+      <p role="status" className="text-sm text-amber-800 dark:text-amber-300">
+        {duplicate
+          ? text.duplicate(
+              describeJob(duplicate),
+              messages.stages[duplicate.status],
+            )
+          : ""}
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2">

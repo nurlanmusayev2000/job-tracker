@@ -5,12 +5,13 @@ import { useId } from "react";
 import { emptyJobInput, type Job, type JobInput } from "@/jobs/job";
 import { toJobInput } from "@/jobs/jobForm";
 import { messages } from "@/messages";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addJob,
   deleteJob,
   describeSaveError,
   saveJob,
+  selectJobs,
 } from "@/store/jobsSlice";
 
 import { Dialog } from "../ui/Dialog";
@@ -20,12 +21,20 @@ interface JobDialogProps {
   open: boolean;
   /** The job to edit, or undefined to add a new one. */
   job?: Job;
+  /** Starting values for a new job, for example from the bookmarklet. */
+  newJobValues?: JobInput;
   onClose: () => void;
 }
 
 /** The dialog for adding a vacancy, or editing and deleting one. */
-export function JobDialog({ open, job, onClose }: JobDialogProps) {
+export function JobDialog({
+  open,
+  job,
+  newJobValues,
+  onClose,
+}: JobDialogProps) {
   const dispatch = useAppDispatch();
+  const savedJobs = useAppSelector(selectJobs);
   const headingId = useId();
 
   async function handleSubmit(values: JobInput) {
@@ -50,11 +59,15 @@ export function JobDialog({ open, job, onClose }: JobDialogProps) {
           {job ? messages.dialog.editTitle : messages.dialog.addTitle}
         </h2>
         <JobForm
-          initialValues={job ? toJobInput(job) : emptyJobInput()}
+          initialValues={
+            job ? toJobInput(job) : (newJobValues ?? emptyJobInput())
+          }
           onSubmit={handleSubmit}
           onCancel={onClose}
           onDelete={job ? handleDelete : undefined}
           describeError={describeSaveError}
+          savedJobs={savedJobs}
+          editedId={job?.id}
         />
       </div>
     </Dialog>
